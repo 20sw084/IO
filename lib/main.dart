@@ -17,11 +17,51 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  var _enterDataField = new TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('IO'),
+        centerTitle: true,
+        backgroundColor: Colors.greenAccent,
+      ),
+      body: Container(
+        padding: const EdgeInsets.all(32.0),
+        alignment: Alignment.topCenter,
+        child: ListTile(
+          title: TextField(
+            controller: _enterDataField,
+            decoration: const InputDecoration(labelText: 'Write Something'),
+          ),
+          subtitle: ElevatedButton(
+            onPressed: () {
+              setState(() {
+                writeD(_enterDataField.text);
+              });
+            },
+            child: Column(
+              children: <Widget>[
+                const Text('Save Data'),
+                const Padding(padding: EdgeInsets.all(14.5)),
+                FutureBuilder(
+                  future: readD(),
+                  builder: (BuildContext context, AsyncSnapshot<String> data) {
+                    if (data.hasData != null) {
+                      // NOT
+                      return Text(
+                        data.data.toString(),
+                        style: const TextStyle(color: Colors.white70),
+                      );
+                    } else {
+                      return const Text('No Data Saved');
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -37,24 +77,25 @@ class _HomeState extends State<Home> {
     return File('$path/counter.txt');
   }
 
-  Future<File> writeCounter(int counter) async {
+  Future<File> writeD(String counter) async {
     final file = await _localFile;
-
+    // file.writeAsString('$counter');
     // Write the file
     return file.writeAsString('$counter');
   }
 
-  Future<int> readCounter() async {
+  Future<String> readD() async {
     try {
       final file = await _localFile;
 
       // Read the file
       final contents = await file.readAsString();
 
-      return int.parse(contents);
+      return contents;
     } catch (e) {
       // If encountering an error, return 0
-      return 0;
+      return '';
     }
   }
 }
+
